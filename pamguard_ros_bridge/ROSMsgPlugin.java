@@ -16,7 +16,7 @@ public class ROSMsgPlugin implements DaqSystemInterface{
 	String jarfile;
 	@Override
 	public String getDefaultName() {
-		return "icListenPlugin";
+		return "ROSMsgPlugin";
 	}
 
 	// no help file currently existed.
@@ -40,45 +40,45 @@ public class ROSMsgPlugin implements DaqSystemInterface{
 	//the author name of the plugin.
 	@Override
 	public String getDeveloperName() {
-		return "Yangfan Chen";
+		return "Shane";
 	}
 
 	//Contact information of author
 	@Override
 	public String getContactEmail() {
-		return "coop.student@oceansonics.com";
+		return "hunghsuyong114shane@gmail.com";
 	}
 
 	
 	//the version the plugin is running on.
 	@Override
 	public String getVersion() {
-		return "2.0014e Beta";
+		return "1.00 Beta";
 	}
 
 	//the version the plugin is developed on.
 	@Override
 	public String getPamVerDevelopedOn() {
-		return "2.0014e Beta";
+		return "1.00 Beta";
 	}
 
 	//the version the plugin is tested and worked best on.
 	@Override
 	public String getPamVerTestedOn() {
-		return "2.0014e Beta";
+		return "1.00 Beta";
 	}
 
 	//the basic functionality of what this plugin can do.
 	@Override
 	public String getAboutText() {
-		return "This device can display spectrogram from the icListen device using PAMGuard MVC";
+		return "This device can display spectrogram from the PAM buoy device using PAMGuard MVC";
 	}
 
 	// Pamguard will take interpret this class and uses their architecture to
 	// initializes a Daq Plugin.
 	@Override
 	public DaqSystem createDAQControl(AcquisitionControl acObject) {
-		return new icListenDaq(acObject);
+		return new ROSMsgDaq(acObject);
 
 	}
 
