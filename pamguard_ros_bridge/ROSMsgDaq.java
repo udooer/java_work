@@ -26,65 +26,125 @@ import javax.swing.JOptionPane;
 import soundPlayback.PlaybackControl;
 import soundPlayback.PlaybackSystem;
 
-public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
+public class ROSMsgDaq extends DaqSystem{
     public static String plugin_name = "ROS Msg DAQ plugin";
+
+    static AcquisitionControl acquisition_control;
+    private ROSMsgDaqPanel ros_msg_daq_panel;
 
     // currently return the name of the plugin
     @Override 
     public String getSystemType(){
-        return plugin_name;
+        System.out.println("Get system type.");
+        return this.plugin_name;
     }
     
     // not sure for this, still need check the source code 
     @Override
     public String getSystemName(){
-        return plugin_name;
+        System.out.println("Get system name.");
+        return this.plugin_name;
     }
     
-    public abstract JComponent getDaqSpecificDialogComponent(AcquisitionDialog paramAcquisitionDialog);
-
-    public ChannelListPanel getDaqSpecificChannelListPanel(AcquisitionDialog acquisitionDialog) {
-    return null;
+    // init the gui part of ROSMsgDaqPanel
+    @Override
+    public JComponent getDaqSpecificDialogComponent(AcquisitionDialog param_acquisition_dialog){
+        System.out.println("Get Daq specific dialog component.");
+        if(this.ros_msg_daq_panel == null)
+            this.ros_msg_daq_panel = new ROSMsgDaqPanel(param_acquisition_dialog);
+        return this.ros_msg_daq_panel;
     }
 
-    public abstract void dialogSetParams();
+    // the method may not be written correctly, it is a good idea
+    // not to use it. 
+    @Override
+    public void dialogSetParams(){
+        System.out.println("Dialog set params.");
+        return;
+    }
 
-    public abstract boolean dialogGetParams();
+    // the method may not be written correctly, it is a good idea
+    // not to use it.
+    @Override
+    public boolean dialogGetParams(){
+        System.out.println("Dialog get params.");
+        return false;
+    }
 
     public void setSelected(boolean select) {}
 
     public void notifyModelChanged(int changeType) {}
 
-    public abstract int getMaxSampleRate();
+    // return max sample rate 
+    @Override
+    public int getMaxSampleRate(){
+        System.out.println("Get max sample rate.");
+        return 192000;
+    }
 
-    public abstract int getMaxChannels();
+    // return max channel 
+    @Override
+    public int getMaxChannels(){
+        System.out.println("Get max channels.");
+        return 2;
+    }
 
-    public abstract double getPeak2PeakVoltage(int paramInt);
+    // return peak to peak voltage
+    public double getPeak2PeakVoltage(int param_int){
+        System.out.println("Get peak to peak voltage.");
+        return 2;
+    }
 
-    public abstract boolean prepareSystem(AcquisitionControl paramAcquisitionControl);
+    // not finish yet 
+    @Override
+    public boolean prepareSystem(AcquisitionControl param_acquisition_control){
+        System.out.println("Prepare system.");
+        return true;
+    }
 
-    public abstract boolean startSystem(AcquisitionControl paramAcquisitionControl);
+    // not finish yet 
+    @Override
+    public boolean startSystem(AcquisitionControl param_acquisition_control){
+        System.out.println("Start system.");
+        return true;
+    }
 
-    public abstract void stopSystem(AcquisitionControl paramAcquisitionControl);
+    // not finish yet 
+    @Override
+    public void stopSystem(AcquisitionControl param_acquisition_control){
+        System.out.println("Stop system.");
+        return;
+    }
 
-    public abstract boolean isRealTime();
+    // is real time 
+    @Override
+    public boolean isRealTime(){
+        System.out.println("Is it real time?");
+        return true;
+    }
 
-    public abstract boolean canPlayBack(float paramFloat);
+    // can play back, not sure for now.
+    @Override
+    public boolean canPlayBack(float paramFloat){
+        System.out.println("Can it play back?");
+        return true;
+    }
 
-    public abstract int getDataUnitSamples();
+    // 
+    @Override 
+    public int getDataUnitSamples(){
+        System.out.println("Get data unit samples.");
+        return 1000;
+    }
 
     public PlaybackSystem getPlaybackSystem(PlaybackControl playbackControl, DaqSystem daqSystem) {
     return null;
     }
 
-    public abstract void daqHasEnded();
-
-    public int getStreamStatus() {
-    return this.streamStatus;
-    }
-
-    public void setStreamStatus(int streamStatus) {
-    this.streamStatus = streamStatus;
+    //
+    @Override
+    public void daqHasEnded(){
+        System.out.println("Daq has ended.");
     }
 
     public boolean areSampleSettingsOk(int numInputsRequested, float sampleRateRequested) {
@@ -93,19 +153,16 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
 
     public void showSampleSettingsDialog(AcquisitionDialog acquisitionDialog) {}
 
-    public Component getStatusBarComponent() {
-    return null;
-    }
-
     public boolean supportsChannelLists() {
     return false;
     }
 
-    public int getInputChannelMap(AcquisitionParameters acquisitionParameters) {
-    return PamUtils.makeChannelMap(acquisitionParameters.nChannels);
+    // return the plugin name
+    @Override
+    public String getDeviceName(){
+        System.out.println("Get device name.");
+        return this.plugin_name;
     }
-
-    public abstract String getDeviceName();
 
     public double getChannelGain(int channel) {
     return 0.0D;
@@ -119,13 +176,11 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     return 2L;
     }
 
-    public ChannelListPanel getDaqSpecificChannelListNode(AcquisitionPaneFX acquisitionPaneFX) {
-    return null;
-    }
-
-    public Node getDaqSpecificNode(AcquisitionPaneFX acquisitionPaneFX) {
-    return null;
-    }
-
     public void dialogFXSetParams() {}
+
+    // constructor of ROSMsgDaq
+    public ROSMsgDaq(AcquisitionControl acquisition_control){
+        System.out.println("ROSMsgDaq init!!!");
+        ROSMsgDaq.acquisition_control = acquisition_control;
+    }
 } 
