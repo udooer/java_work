@@ -77,7 +77,7 @@ public class ROSMsgDaqPanel extends JPanel{
                 System.out.println("Cancel button pressed");
             }
         }); 
-        
+
         //using a box layout to set up the views for ROSMsgDaqPanel
         params = new ROSMsgParams();
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -337,8 +337,3 @@ public class ROSMsgDaqPanel extends JPanel{
         f.setVisible(true);
     }   
 }
-
-
-
-
-

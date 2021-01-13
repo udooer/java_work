@@ -7,6 +7,6 @@ package pamguard_ros_bridge;
 // import java_websocket lib
 import org.java_websocket.client.WebSocketClient;
 public class ROSMsgParams{
- 	public WebSocketClient m_ws;
- 	public boolean m_status = false;
+    public WebSocketClient m_ws;
+    public boolean m_status = false;
 }

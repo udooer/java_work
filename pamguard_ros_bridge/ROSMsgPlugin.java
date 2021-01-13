@@ -12,7 +12,6 @@ import Acquisition.AcquisitionControl;
 import Acquisition.DaqSystem;
 import Acquisition.DaqSystemInterface;
 
-import pamguard_ros_bridge.ROSMsgDaq;
 
 public class ROSMsgPlugin implements DaqSystemInterface{
     public String jarfile;

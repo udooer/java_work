@@ -26,6 +26,7 @@ import javax.swing.JOptionPane;
 import soundPlayback.PlaybackControl;
 import soundPlayback.PlaybackSystem;
 
+
 public class ROSMsgDaq extends DaqSystem{
     public static String plugin_name = "ROS Msg DAQ plugin";
 
