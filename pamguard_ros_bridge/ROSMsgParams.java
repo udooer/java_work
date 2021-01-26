@@ -6,7 +6,12 @@ package pamguard_ros_bridge;
 
 // import java_websocket lib
 import org.java_websocket.client.WebSocketClient;
+
+//import pamguard lib
+import Acquisition.AudioDataQueue;
+
 public class ROSMsgParams{
     public WebSocketClient m_ws;
-    public boolean m_status = false;
+    public volatile boolean m_status = false;
+    public AudioDataQueue m_audioDataQueue_ch1;
 }

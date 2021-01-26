@@ -27,14 +27,11 @@ import soundPlayback.PlaybackControl;
 import soundPlayback.PlaybackSystem;
 
 
-public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
+public class ROSMsgDaq extends DaqSystem{
     public static String plugin_name = "ROS Msg DAQ plugin";
 
     static AcquisitionControl acquisition_control;
     private ROSMsgDaqPanel ros_msg_daq_panel;
-    private ROSMsgParams params;
-
-    private volatile boolean pam_stop;
 
     // currently return the name of the plugin
     @Override 
@@ -72,10 +69,7 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     @Override
     public boolean dialogGetParams(){
         System.out.println("Dialog get params.");
-        if(this.ros_msg_daq_panel == null)
-            return false;
-        else
-            return true;
+        return false;
     }
 
     public void setSelected(boolean select) {}
@@ -106,13 +100,6 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     @Override
     public boolean prepareSystem(AcquisitionControl param_acquisition_control){
         System.out.println("Prepare system.");
-        if(!this.params.m_status){
-            this.acquisition_control.getDaqProcess().pamStop();
-            System.out.println("preparing system failed: connection status is false");
-            return false;
-        }
-        this.acquisition_control = param_acquisition_control;
-        this.params.m_audioDataQueue_ch1 = acquisitionControl.getDaqProcess().getNewDataQueue();
         return true;
     }
 
@@ -120,16 +107,6 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     @Override
     public boolean startSystem(AcquisitionControl param_acquisition_control){
         System.out.println("Start system.");
-        if(!this.params.m_status){
-            System.out.println("Starting system failed: connection status is false");
-            return false;
-        }
-        // start the stream thread, push data inside AudioDataQueue
-        Thread data_stream_thread = new Thread(new DataStreamThread(params.m_msg));
-        data_stream_thread.start();
-        setStreamStatus(2); // method in daqSystem
-        TopToolBar.enableStartButton(false);
-        TopToolBar.enableStopButton(true);
         return true;
     }
 
@@ -137,11 +114,6 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     @Override
     public void stopSystem(AcquisitionControl param_acquisition_control){
         System.out.println("Stop system.");
-        pam_stop = true;
-        setStreamStatus(0); //method in daqSystem
-        this.params.m_ws.close();
-        TopToolBar.enableStartButton(true);
-        TopToolBar.enableStopButton(false);
         return;
     }
 
@@ -207,16 +179,9 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
 
     public void dialogFXSetParams() {}
 
-    class DataStreamThread implements Runnable{
-        private BlockingQueue<double[]> msglist;
-        public 
-    }
-
     // constructor of ROSMsgDaq
     public ROSMsgDaq(AcquisitionControl acquisition_control){
         System.out.println("ROSMsgDaq init!!!");
         ROSMsgDaq.acquisition_control = acquisition_control;
-        this.params.m_audioDataQueue_ch1 = new AudioDataQueue();
-        PamSettingManager.getInstance().registerSettings(this);
     }
 } 
