@@ -38,11 +38,6 @@ import org.java_websocket.handshake.ServerHandshake;
 //import JSON lib
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONArray;
-
-import java.util.*;
-import java.util.concurrent.*;
-
 
 
 public class ROSMsgDaqPanel extends JPanel{
@@ -122,23 +117,11 @@ public class ROSMsgDaqPanel extends JPanel{
             public void actionPerformed(ActionEvent event){
                 String server_name = tf_server.getText();
                 try{
-                    params.m_msgList = new LinkedBlockingQueue<double[]>();
                     params.m_ws = new WebSocketClient(new URI(server_name), new Draft_6455()){
                         @Override
                         public void onMessage(String message){
                             JSONObject obj = new JSONObject(message);
-                            JSONObject msg = (JSONObject)obj.get("msg");
-                            JSONArray ch1 = msg.getJSONArray("data_ch1");
-                            double[] data_double = new double[ch1.length()];
-                            for(int i=0; i<ch1.length(); i++){
-                                data_double[i] = ch1.getDouble(i);
-                            }
-                            try{
-                                params.m_msgList.put(data_double);
-                            }
-                            catch(Exception e){
-                                System.out.println("exception happened in onMessage method");
-                            }
+                            System.out.println(obj);
                         }
 
                         @Override

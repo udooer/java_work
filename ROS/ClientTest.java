@@ -6,6 +6,8 @@ import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
+import java.util.*;
 
 public class ClientTest{
     public WebSocketClient m_ws;
@@ -16,7 +18,13 @@ public class ClientTest{
                 public void onMessage( String message ) {
                     System.out.println( "on message" );
                     JSONObject obj = new JSONObject(message);
-                    System.out.println(obj);
+                    JSONObject msg = (JSONObject)obj.get("msg");
+                    JSONArray ch1 = msg.getJSONArray("data_ch1");
+                    double[] data_double = new double[ch1.length()];
+                    for(int i=0; i<ch1.length(); i++){
+                        data_double[i] = ch1.getDouble(i);
+                    }
+                    System.out.println(ch1.length());
                 }
 
                 @Override
