@@ -62,9 +62,9 @@ public class ROSMsgDaqPanel extends JPanel{
      *  establish connections with rosbridge server
      *  @param acquisitionDialog 
      */
-    public ROSMsgDaqPanel(AcquisitionDialog acquisition_dialog){
+    public ROSMsgDaqPanel(AcquisitionDialog acquisition_dialog, ROSMsgParams params){
         this.acquisition_dialog = acquisition_dialog;
-
+        this.params = params;
         // get the access of Ok button in AcquisitionDialog
         JButton button_ok = acquisition_dialog.getOkButton();
         button_ok.addActionListener(new ActionListener(){
@@ -84,7 +84,6 @@ public class ROSMsgDaqPanel extends JPanel{
         }); 
 
         //using a box layout to set up the views for ROSMsgDaqPanel
-        params = new ROSMsgParams();
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         JPanel p_ros = new JPanel(new GridBagLayout());
