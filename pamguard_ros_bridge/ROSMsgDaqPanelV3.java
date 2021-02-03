@@ -6,7 +6,7 @@ package pamguard_ros_bridge;
  *  used to establish connection with rosbridge 
  *  server(ws://0.0.0.0:9090)
  *  Shane 
- *  2021_02_03
+ *  2021_01_13
  */
 
 // import pamguard lib
@@ -121,24 +121,19 @@ public class ROSMsgDaqPanel extends JPanel{
             public void actionPerformed(ActionEvent event){
                 String server_name = tf_server.getText();
                 try{
-                    params.m_msgList_ch1 = new LinkedBlockingQueue<double[]>();
-                    params.m_msgList_ch2 = new LinkedBlockingQueue<double[]>();
+                    params.m_msgList = new LinkedBlockingQueue<double[]>();
                     params.m_ws = new WebSocketClient(new URI(server_name), new Draft_6455()){
                         @Override
                         public void onMessage(String message){
                             JSONObject obj = new JSONObject(message);
                             JSONObject msg = (JSONObject)obj.get("msg");
                             JSONArray ch1 = msg.getJSONArray("data_ch1");
-                            JSONArray ch2 = msg.getJSONArray("data_ch2");
-                            double[] data_ch1 = new double[ch1.length()];
-                            double[] data_ch2 = new double[ch1.length()];
+                            double[] data_double = new double[ch1.length()];
                             for(int i=0; i<ch1.length(); i++){
-                                data_ch1[i] = ch1.getDouble(i);
-                                data_ch2[i] = ch2.getDouble(i);
+                                data_double[i] = ch1.getDouble(i);
                             }
                             try{
-                                params.m_msgList_ch1.put(data_ch1);
-                                params.m_msgList_ch2.put(data_ch2);
+                                ROSMsgDaqPanel.this.params.m_msgList.put(data_double);
                             }
                             catch(Exception e){
                                 System.out.println("exception happened in onMessage method");
@@ -147,12 +142,12 @@ public class ROSMsgDaqPanel extends JPanel{
 
                         @Override
                         public void onOpen(ServerHandshake handshake){
-                            System.out.println("connection opened");
+                            System.out.println("opened connection");
                         }
 
                         @Override
                         public void onClose(int code, String reason, boolean remote){
-                            System.out.println("connection closed");
+                            System.out.println( "closed connection" );
                         }
 
                         @Override

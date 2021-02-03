@@ -1,8 +1,5 @@
 package pamguard_ros_bridge;
-/*
- *  Shane 
- *  2021_02_03
- */
+
 import Acquisition.AcquisitionControl;
 import Acquisition.AcquisitionDialog;
 import Acquisition.AudioDataQueue;
@@ -35,26 +32,29 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
 
     static AcquisitionControl acquisition_control;
     private ROSMsgDaqPanel ros_msg_daq_panel;
-    private ROSMsgParams params = new ROSMsgParams();
+    public ROSMsgParams params = new ROSMsgParams();
 
-    private volatile boolean pam_stop;
-    private volatile boolean pam_running;
+    public volatile boolean pam_stop;
+    public volatile boolean pam_running;
 
     // currently return the name of the plugin
     @Override 
     public String getSystemType(){
+        System.out.println("Get system type.");
         return this.plugin_name;
     }
     
     // not sure for this, still need check the source code 
     @Override
     public String getSystemName(){
+        System.out.println("Get system name.");
         return this.plugin_name;
     }
     
     // init the gui part of ROSMsgDaqPanel
     @Override
     public JComponent getDaqSpecificDialogComponent(AcquisitionDialog param_acquisition_dialog){
+        System.out.println("Get Daq specific dialog component.");
         if(this.ros_msg_daq_panel == null)
             this.ros_msg_daq_panel = new ROSMsgDaqPanel(param_acquisition_dialog, this.params);
         return this.ros_msg_daq_panel;
@@ -64,6 +64,7 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     // not to use it. 
     @Override
     public void dialogSetParams(){
+        System.out.println("Dialog set params.");
         return;
     }
 
@@ -71,6 +72,7 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     // not to use it.
     @Override
     public boolean dialogGetParams(){
+        System.out.println("Dialog get params.");
         if(this.ros_msg_daq_panel == null)
             return false;
         else
@@ -84,31 +86,35 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     // return max sample rate 
     @Override
     public int getMaxSampleRate(){
+        System.out.println("Get max sample rate.");
         return 192000;
     }
 
     // return max channel 
     @Override
     public int getMaxChannels(){
+        System.out.println("Get max channels.");
         return 2;
     }
 
     // return peak to peak voltage
     public double getPeak2PeakVoltage(int param_int){
+        // System.out.println("DaqSystem:Get peak to peak voltage.");
         return 2;
     }
 
     // not finish yet 
     @Override
     public boolean prepareSystem(AcquisitionControl param_acquisition_control){
-        System.out.println("DaqSystem:Prepare system.");        
+        System.out.println("DaqSystem:Prepare system start.");        
         if(!this.params.m_status){
             this.acquisition_control.getDaqProcess().pamStop();
             System.out.println("preparing system failed: connection status is false");
             return false;
         }
         this.acquisition_control = param_acquisition_control;
-        this.params.m_audioDataQueue = this.acquisition_control.getDaqProcess().getNewDataQueue();
+        this.params.m_audioDataQueue_ch1 = this.acquisition_control.getDaqProcess().getNewDataQueue();
+        System.out.println("DaqSystem:Prepare system end.");
         return true;
     }
 
@@ -124,7 +130,7 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
             return false;
         }
         // start the stream thread, push data inside AudioDataQueue
-        Thread data_stream_thread = new Thread(new DataStreamThread());
+        Thread data_stream_thread = new Thread(new DataStreamThread(params.m_msgList, this));
         data_stream_thread.start();
         setStreamStatus(STREAM_RUNNING); // method in daqSystem
         TopToolBar.enableStartButton(false);
@@ -136,8 +142,9 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     @Override
     public void stopSystem(AcquisitionControl param_acquisition_control){
         System.out.println("DaqSystem:Stop system.");
-        this.pam_stop = true;
+        pam_stop = true;
         setStreamStatus(STREAM_CLOSED); //method in daqSystem
+        // this.params.m_ws.close();
         TopToolBar.enableStartButton(true);
         TopToolBar.enableStopButton(false);
         return;
@@ -146,18 +153,21 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     // is real time 
     @Override
     public boolean isRealTime(){
+        System.out.println("Is it real time?");
         return true;
     }
 
-    // can't play back, not sure for now.
+    // can play back, not sure for now.
     @Override
     public boolean canPlayBack(float paramFloat){
+        System.out.println("Can it play back?");
         return false;
     }
 
     // 
     @Override 
     public int getDataUnitSamples(){
+        System.out.println("Get data unit samples.");
         return 1000;
     }
 
@@ -185,6 +195,7 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     // return the plugin name
     @Override
     public String getDeviceName(){
+        System.out.println("Get device name.");
         return this.plugin_name;
     }
 
@@ -193,7 +204,7 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     }
 
     public int getSampleBits() {
-        return 24;
+        return 16;
     }
 
     public long getStallCheckSeconds() {
@@ -202,44 +213,37 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
 
     public void dialogFXSetParams() {}
 
-    class DataStreamThread implements Runnable{
-        DataStreamThread(){}
-        public void run(){
-            System.out.println("THREAD START");
-            ROSMsgDaq.this.params.m_msgList_ch1.clear();
-            ROSMsgDaq.this.params.m_msgList_ch2.clear();
-            ROSMsgDaq.this.pam_stop = false;
-            ROSMsgDaq.this.pam_running = true;
+    // class DataStreamThread implements Runnable{
+    //     private BlockingQueue<double[]> msgList;
+    //     public DataStreamThread(BlockingQueue<double[]> msgList){
+    //         this.msgList = msgList;
+    //     }
+    //     public void run(){
+    //         RawDataUnit newDataUnit = null;
+    //         ROSMsgDaq.this.pam_stop = false;
+    //         ROSMsgDaq.this.pam_running = true;
+    //         double[] buffer = new double[9600];
+    //         long total_samples = 0L;
+    //         while(!ROSMsgDaq.this.pam_stop && ROSMsgDaq.this.params.m_status){
+    //             if(this.msgList.size()!=0){   
+    //                 try{
+    //                     buffer = this.msgList.take();
+    //                 }catch(InterruptedException e){
+    //                     e.printStackTrace();
+    //                     break;
+    //                 }
+    //             }
+    //             long msec = ROSMsgDaq.acquisition_control.getAcquisitionProcess().absSamplesToMilliseconds(total_samples);
+    //             newDataUnit = new RawDataUnit(msec, 1, total_samples, 9600L);
+    //             newDataUnit.setRawData(buffer);
+    //             ROSMsgDaq.this.params.m_audioDataQueue_ch1.addNewData(newDataUnit);
+    //             total_samples += 9600L;
+    //         }
+    //         ROSMsgDaq.this.pam_running = false;
+    //     }
+    // }
 
-            RawDataUnit newDataUnit[] = new RawDataUnit[2];
-            double[][] buffer = new double[2][9600];
-            long total_samples = 0L;
-
-            while(!ROSMsgDaq.this.pam_stop && ROSMsgDaq.this.params.m_status){   
-                try{
-                    buffer[0] = ROSMsgDaq.this.params.m_msgList_ch1.take();
-                    buffer[1] = ROSMsgDaq.this.params.m_msgList_ch2.take();
-                }catch(InterruptedException e){
-                    System.out.println("Exception Happen!!");
-                    break;
-                }
-                long msec = ROSMsgDaq.acquisition_control.getAcquisitionProcess().absSamplesToMilliseconds(total_samples);
-                for(int i=0;i<2;i++){
-                    newDataUnit[i] = new RawDataUnit(msec, i+1, total_samples, 9600L);
-                    newDataUnit[i].setRawData(buffer[i]);
-                    ROSMsgDaq.this.params.m_audioDataQueue.addNewData(newDataUnit[i]);
-                }
-                
-                total_samples += 9600L;
-
-                System.out.println("TOTAL TIME:" + (float)total_samples/96000f);
-            }
-            ROSMsgDaq.this.pam_running = false;
-            System.out.println("THREAD END");
-        }
-    }
-
-    // pamsetting override start
+    // // pamsetting override start
     public String getUnitName() {
         return this.acquisition_control.getUnitName();
     }
@@ -259,8 +263,9 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     public boolean restoreSettings(PamControlledUnitSettings pamControlledUnitSettings) {
     try {
         System.out.println("restore settings");
+        this.params.m_ws.close();
     }catch (Exception e) {
-        System.out.println("exception happen");
+        e.printStackTrace();
     } 
         return false;
     }
@@ -292,13 +297,48 @@ public class ROSMsgDaq extends DaqSystem implements PamSettings, PamObserver{
     public PamObserver getObserverObject() {
         return null;
     }
-    // pamobserver override end
+    // //pamobserver override end
 
     // constructor of ROSMsgDaq
     public ROSMsgDaq(AcquisitionControl acquisition_control){
         System.out.println("ROSMsgDaq init!!!");
         this.acquisition_control = acquisition_control;
-        this.params.m_audioDataQueue = new AudioDataQueue();
+        this.params.m_audioDataQueue_ch1 = new AudioDataQueue();
         PamSettingManager.getInstance().registerSettings(this);
+    }
+} 
+
+class DataStreamThread implements Runnable{
+    private BlockingQueue<double[]> msg_list;
+    private ROSMsgDaq daq;
+    DataStreamThread(BlockingQueue<double[]> msg_list, ROSMsgDaq daq){
+        this.msg_list = msg_list;
+        this.daq = daq;
+    }
+    public void run(){
+        System.out.println("THREAD START");
+        msg_list.clear();
+        RawDataUnit newDataUnit = null;
+        daq.pam_stop = false;
+        daq.pam_running = true;
+        double[] buffer = new double[9600];
+        long total_samples = 0L;
+        while(!daq.pam_stop && daq.params.m_status){   
+            try{
+                buffer = msg_list.take();
+            }catch(InterruptedException e){
+                System.out.println("Exception Happen!!");
+                e.printStackTrace();
+                break;
+            }
+            long msec = ROSMsgDaq.acquisition_control.getAcquisitionProcess().absSamplesToMilliseconds(total_samples);
+            newDataUnit = new RawDataUnit(msec, 1, total_samples, 9600L);
+            newDataUnit.setRawData(buffer);
+            daq.params.m_audioDataQueue_ch1.addNewData(newDataUnit);
+            total_samples += 9600L;
+            System.out.println("TOTAL TIME:" + total_samples/96000);
+        }
+        daq.pam_running = false;
+        System.out.println("THREAD END");
     }
 }
